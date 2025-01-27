@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-ac_add_options --with-app-name=noraneko
-ac_add_options --with-app-basename=Noraneko
+ac_add_options --with-app-name=floorp
+ac_add_options --with-app-basename=Floorp
 ac_add_options --disable-updater
 # this implies disable geckodriver, and puppeteer seems using the geckodriver impl.
 # so you should not disable test
@@ -25,8 +25,6 @@ mk_add_options AUTOCLOBBER=1
 # Disable telemetry
 ac_add_options MOZ_TELEMETRY_REPORTING=
 # Set branding
-ac_add_options --with-branding=browser/branding/noraneko-unofficial
+ac_add_options --with-branding=browser/branding/floorp-official
 # Package js shell.
 export MOZ_PACKAGE_JSSHELL=1
-# Use Flat package for dev
-ac_add_options --enable-chrome-format=flat

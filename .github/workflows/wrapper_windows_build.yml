@@ -46,7 +46,7 @@ jobs:
     uses: ./.github/workflows/windows_pgo.yml
     secrets: inherit
     with:
-      browser-artifact-name: noraneko-win-amd64-profile-generate-mode
+      browser-artifact-name: floorp-win-amd64-profile-generate-mode
 
   part-3:
     name: Windows x64 build${{toJSON(inputs.debug) == 'true' && ' Debug' || ''}}${{toJSON(inputs.release) == 'true' && ' Release' || ''}}${{toJSON(inputs.package-moz-artifact) == 'true' && ' Moz-Artifact' || ''}}${{toJSON(inputs.code-coverage)=='true'&&' codecov'||''}}
@@ -59,4 +59,4 @@ jobs:
       package-moz-artifact: ${{inputs.package-moz-artifact}}
       release: ${{inputs.release}}
       code-coverage: ${{inputs.code-coverage}}
-      pgo_artifact_name: noraneko-win-amd64-profile-generate-output
+      pgo_artifact_name: floorp-win-amd64-profile-generate-output

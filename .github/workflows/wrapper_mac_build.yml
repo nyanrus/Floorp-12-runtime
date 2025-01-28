@@ -16,7 +16,7 @@ on:
         type: boolean
         required: true
 
-run-name: Mac build
+run-name: ${{toJSON(inputs.pgo) == 'true' && '[PGO] ' || ''}}Mac x64 build${{toJSON(inputs.debug) == 'true' && ' Debug' || ''}}
 jobs:
   get-buildid:
     runs-on: ubuntu-latest

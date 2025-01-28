@@ -163,18 +163,10 @@ jobs:
             mkdir -p ./output
             mv ./floorp-macOS-universal.dmg ./output/floorp-macOS-universal.dmg
 
-        - name: Publish 🎁
+        - name: Publish Package Mozilla Artifact🎁
           uses: actions/upload-artifact@v4
           with:
-            name: macOS-universal-integrated-signed-dmg
+            name: floorp-mac-universal-moz-artifact
             if-no-files-found: ignore
             path: |
               ./output/
-
-        - name: Publish
-          uses: actions/upload-artifact@v4
-          with:
-            name: macOS-universal-integrated-signed-package
-            if-no-files-found: ignore
-            path: |
-              ./obj-x86_64-apple-darwin/

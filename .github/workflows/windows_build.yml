@@ -7,18 +7,9 @@
 on:
   workflow_call:
     inputs:
-      release:
-        type: boolean
-        default: false
       debug:
         type: boolean
         default: true
-      package-moz-artifact:
-        type: boolean
-        default: false
-      code-coverage:
-        type: boolean
-        default: false
       profile-generate-mode:
         type: boolean
         default: false
@@ -142,19 +133,6 @@ jobs:
           echo "ac_add_options RUSTC_OPT_LEVEL=3" >> mozconfig
           git apply --ignore-space-change  --reject --ignore-whitespace .github/patches/dev/*.patch
         fi
-        if [[ $GHA_release == 'true' ]]; then
-          echo "ac_add_options --enable-release" >> mozconfig
-          # https://searchfox.org/mozilla-central/rev/c169f7d0287c1a6a5dd7469864135e605eed765f/docs/setup/configuring_build_options.rst#259
-        fi
-        if [[ $GHA_codecov == 'true' ]]; then
-          echo "ac_add_options --enable-coverage" >> mozconfig
-          #https://searchfox.org/mozilla-central/rev/abeb2aa5df6f02de3c12c54ff7b0865c34c3fde9/browser/config/mozconfigs/win64/code-coverage#10
-          echo "export LIB=\"$(cd ~/.mozbuild/clang/lib/clang/* && cd lib/windows && pwd)\"" >> mozconfig
-          echo 'export LDFLAGS="clang_rt.profile-x86_64.lib"' >> mozconfig
-
-          echo 'export RUSTFLAGS="-Ccodegen-units=1 -Zprofile -Cpanic=abort -Zpanic_abort_tests -Coverflow-checks=off"' >> mozconfig
-          echo 'export RUSTDOCFLAGS="-Cpanic=abort"' >> mozconfig
-        fi
 
         # PGO START
         if [[ $GHA_profgen == 'true' ]]; then
@@ -176,8 +154,6 @@ jobs:
         ./mach --no-interactive bootstrap --application-choice browser
       env:
         GHA_debug: ${{inputs.debug}}
-        GHA_release: ${{inputs.release}}
-        GHA_codecov: ${{inputs.code-coverage}}
         GHA_profgen: ${{inputs.profile-generate-mode}}
         GHA_pgo_artifact_name: ${{inputs.pgo_artifact_name}}
 
@@ -189,7 +165,6 @@ jobs:
       run: |
 
         ./mach build
-
         ./mach package
         rm -rf ~/.cargo
 
@@ -204,29 +179,21 @@ jobs:
           floorp-win-amd64-profile-generate-mode
           floorp-dist-host
 
-    - name: Publish Package🎁
-      uses: actions/upload-artifact@v4
-      with:
-        name: floorp-win-amd64-dev
-        path: obj-x86_64-pc-windows-msvc/dist/floorp-*.zip
+    - name: extract moz-artifact
+      run: |
+        mkdir ~/artifact
+        unzip obj-x86_64-pc-windows-msvc/dist/floorp-*win64.zip -d ~/artifact
 
     - name: Publish Package Mozilla Artifact🎁
-      if: inputs.package-moz-artifact
       uses: actions/upload-artifact@v4
       with:
         name: floorp-win-amd64-moz-artifact
-        path: obj-x86_64-pc-windows-msvc/dist/floorp-*.zip
+        path: obj-x86_64-pc-windows-msvc/dist/floorp-*win64.zip
 
     - name: Publish dist/* for generate profile
       if: inputs.profile-generate-mode
       uses: actions/upload-artifact@v4
       with:
-        name: floorp-win-amd64-profile-generate-mode
+        name: floorp-win-amd64-profile-generate-mode-package
         path: obj-x86_64-pc-windows-msvc/dist/
-
-    - name: Publish dist/host for MAR
-      uses: actions/upload-artifact@v4
-      with:
-        name: floorp-dist-host
-        path: obj-x86_64-pc-windows-msvc/dist/host/
     # Publish END

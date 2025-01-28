@@ -10,6 +10,9 @@ on:
       debug:
         type: boolean
         default: true
+      pgo:
+        type: boolean
+        default: false
 
 jobs:
   linux-build:
@@ -89,9 +92,14 @@ jobs:
           git apply --ignore-space-change --reject --ignore-whitespace .github/patches/dev/*.patch
         fi
 
+        if [[ $GHA_pgo == 'true' ]]; then
+          echo "ac_add_options MOZ_PGO=1" >> mozconfig
+        fi
+
         ./mach --no-interactive bootstrap --application-choice browser
       env:
         GHA_debug: ${{ inputs.debug }}
+        GHA_pgo: ${{ inputs.pgo }}
 
     - name: Mach Configure
       run: |
@@ -114,11 +122,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: floorp-linux-amd64-moz-artifact
-        path: obj-x86_64-pc-linux-gnu/dist/floorp-*.tar.bz2
-
-    - name: Publish Package 🎁
-      uses: actions/upload-artifact@v4
-      with:
-        name: floorp-linux-amd64-dev
         path: ~/output/
     # Publish END

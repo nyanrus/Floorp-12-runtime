@@ -188,7 +188,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: floorp-win-amd64-moz-artifact
-        path: obj-x86_64-pc-windows-msvc/dist/floorp-*win64.zip
+        path: ~/artifact/
 
     - name: Publish dist/* for generate profile
       if: inputs.profile-generate-mode

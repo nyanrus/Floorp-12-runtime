@@ -135,14 +135,14 @@ jobs:
 
         - name: Create DMG 📦
           run: |
-            ./mach python -m mozbuild.action.make_dmg ./obj-x86_64-apple-darwin/dist/floorp floorp-macOS-universal-temp.dmg
+            ./mach python -m mozbuild.action.make_dmg ./obj-x86_64-apple-darwin/dist/floorp floorp-macOS-universal-moz-artifact-temp.dmg
             unzip "./.github/workflows/build/dmg-floorp-base.zip"
-            hdiutil attach ./floorp-macOS-universal-temp.dmg
+            hdiutil attach ./floorp-macOS-universal-moz-artifact-temp.dmg
             hdiutil attach ./base.dmg
 
             cp -r "/Volumes/Floorp/${{ env.APP_NAME }}.app" /Volumes/Floorp\ Installer/
             hdiutil detach /Volumes/Floorp\ Installer/
-            hdiutil convert ./base.dmg -format UDZO -imagekey zlib-level=9 -o floorp-macOS-universal.dmg
+            hdiutil convert ./base.dmg -format UDZO -imagekey zlib-level=9 -o floorp-macOS-universal-moz-artifact.dmg
 
         - name: import APPLE DEVELOPER ID CERTIFICATE for .dmg 🔑
           uses: apple-actions/import-codesign-certs@v3
@@ -152,16 +152,16 @@ jobs:
 
         - name: Sign to .dmg 🖋️
           run: |
-            codesign -s "${{ secrets.APPLE_DEVELOPER_ID }}" floorp-macOS-universal.dmg
+            codesign -s "${{ secrets.APPLE_DEVELOPER_ID }}" floorp-macOS-universal-moz-artifact.dmg
 
-            xcrun notarytool submit "floorp-macOS-universal.dmg" \
+            xcrun notarytool submit "floorp-macOS-universal-moz-artifact.dmg" \
                 --apple-id "${{ secrets.APPLE_DEVELOPER_ACCOUNT_EMAIL }}" \
                 --team-id "${{ secrets.APPLE_DEVELOPER_TEAM_ID }}" \
                 --password "${{ secrets.APPLE_DEVELOPER_ACCOUNT_APP_SPESIFIC_PASSWORD }}" \
                 --wait
 
             mkdir -p ./output
-            mv ./floorp-macOS-universal.dmg ./output/floorp-macOS-universal.dmg
+            mv ./floorp-macOS-universal-moz-artifact.dmg ./output/floorp-macOS-universal-moz-artifact.dmg
 
         - name: Publish Package Mozilla Artifact🎁
           uses: actions/upload-artifact@v4

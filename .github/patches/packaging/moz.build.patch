@@ -6,7 +6,7 @@ index 37e12e4c99..4ee3ec1af0 100644
      "python",
      "testing",
      "third_party/python",
-+    "noraneko"
++    "floorp"
  ]
 
  if not CONFIG["JS_STANDALONE"]:

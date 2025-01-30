@@ -154,7 +154,7 @@ jobs:
           run: |
             codesign -s "${{ secrets.APPLE_DEVELOPER_ID }}" floorp-macOS-universal-moz-artifact-dev.dmg
 
-            xcrun notarytool submit "floorp-macOS-universal-moz-artifact.dmg" \
+            xcrun notarytool submit "floorp-macOS-universal-moz-artifact-dev.dmg" \
                 --apple-id "${{ secrets.APPLE_DEVELOPER_ACCOUNT_EMAIL }}" \
                 --team-id "${{ secrets.APPLE_DEVELOPER_TEAM_ID }}" \
                 --password "${{ secrets.APPLE_DEVELOPER_ACCOUNT_APP_SPESIFIC_PASSWORD }}" \

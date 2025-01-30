@@ -135,14 +135,14 @@ jobs:
 
         - name: Create DMG 📦
           run: |
-            ./mach python -m mozbuild.action.make_dmg ./obj-x86_64-apple-darwin/dist/floorp floorp-macOS-universal-moz-artifact-temp.dmg
+            ./mach python -m mozbuild.action.make_dmg ./obj-x86_64-apple-darwin/dist/floorp floorp-macOS-universal-moz-artifact-release.dmg
             unzip "./.github/workflows/build/dmg-floorp-base.zip"
-            hdiutil attach ./floorp-macOS-universal-moz-artifact-temp.dmg
+            hdiutil attach ./floorp-macOS-universal-moz-artifact-release.dmg
             hdiutil attach ./base.dmg
 
             cp -r "/Volumes/Floorp/${{ env.APP_NAME }}.app" /Volumes/Floorp\ Installer/
             hdiutil detach /Volumes/Floorp\ Installer/
-            hdiutil convert ./base.dmg -format UDZO -imagekey zlib-level=9 -o floorp-macOS-universal-moz-artifact.dmg
+            hdiutil convert ./base.dmg -format UDZO -imagekey zlib-level=9 -o floorp-macOS-universal-moz-artifact-dev.dmg
 
         - name: import APPLE DEVELOPER ID CERTIFICATE for .dmg 🔑
           uses: apple-actions/import-codesign-certs@v3
@@ -152,7 +152,7 @@ jobs:
 
         - name: Sign to .dmg 🖋️
           run: |
-            codesign -s "${{ secrets.APPLE_DEVELOPER_ID }}" floorp-macOS-universal-moz-artifact.dmg
+            codesign -s "${{ secrets.APPLE_DEVELOPER_ID }}" floorp-macOS-universal-moz-artifact-dev.dmg
 
             xcrun notarytool submit "floorp-macOS-universal-moz-artifact.dmg" \
                 --apple-id "${{ secrets.APPLE_DEVELOPER_ACCOUNT_EMAIL }}" \
@@ -161,12 +161,27 @@ jobs:
                 --wait
 
             mkdir -p ./output
-            mv ./floorp-macOS-universal-moz-artifact.dmg ./output/floorp-macOS-universal-moz-artifact.dmg
+            mv ./floorp-macOS-universal-moz-artifact-dev.dmg ./output/floorp-macOS-universal-moz-artifact-dev.dmg
 
-        - name: Publish Package Mozilla Artifact🎁
+        - name: Remove needless artifacts 🗑️
+          uses: geekyeggo/delete-artifact@v5
+          with:
+            name: |
+              floorp-mac-aarch64-package
+              floorp-mac-x86_64-package
+
+        - name: Publish Package Mozilla Artifact for dev 🎁
           uses: actions/upload-artifact@v4
           with:
-            name: floorp-mac-universal-moz-artifact
+            name: floorp-mac-universal-moz-artifact-dev
             if-no-files-found: ignore
             path: |
               ./output/
+
+        - name: Publish Package Mozilla Artifact for release 🎁
+          uses: actions/upload-artifact@v4
+          with:
+            name: floorp-mac-universal-moz-artifact-release
+            if-no-files-found: ignore
+            path: |
+              ./floorp-macOS-universal-moz-artifact-release.dmg

@@ -184,7 +184,7 @@ jobs:
         mkdir ~/artifact
         unzip obj-x86_64-pc-windows-msvc/dist/floorp-*win64.zip -d ~/artifact
 
-    - name: Publish Package Mozilla Artifact🎁
+    - name: Publish Package Mozilla Artifact 🎁
       uses: actions/upload-artifact@v4
       with:
         name: floorp-win-amd64-moz-artifact

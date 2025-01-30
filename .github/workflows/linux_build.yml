@@ -118,9 +118,15 @@ jobs:
         mkdir ~/output
         tar -xvf floorp-*.tar.xz -C ~/output
 
-    - name: Publish Package Mozilla Artifact🎁
+    - name: Publish Package Mozilla Artifact for dev 🎁
       uses: actions/upload-artifact@v4
       with:
-        name: floorp-linux-amd64-moz-artifact
+        name: floorp-linux-amd64-moz-artifact-dev
         path: ~/output/
+
+    - name: Publish Package Mozilla Artifact for release 🎁
+      uses: actions/upload-artifact@v4
+      with:
+        name: floorp-linux-amd64-moz-artifact-release
+        path: obj-x86_64-pc-linux-gnu/dist/floorp-*.tar.bz2
     # Publish END

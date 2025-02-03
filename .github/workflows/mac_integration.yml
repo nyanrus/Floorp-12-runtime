@@ -123,52 +123,11 @@ jobs:
           run: |
             ./mach python "./toolkit/mozapps/installer/unify.py" "./obj-x86_64-apple-darwin/dist/floorp/${{ env.APP_NAME }}.app" "./obj-aarch64-apple-darwin/dist/floorp/${{ env.APP_NAME }}.app"
 
-        - name: create .p12 for codesign 🖊️
-          run: |
-           echo ${{ secrets.APPLE_DEVELOPER_P12_BASE64 }} > floorp-cert.txt
-           base64 --decode -i floorp-cert.txt -o floorpCert.p12
-           echo ${{ secrets.APPLE_DEVELOPER_P12_PASSWORD }} > floorpCertPassword.passwd
-
-        - name: Sign to .app 🖋️
-          run: |
-            ./mach macos-sign -v -r -c "release" -a "./obj-x86_64-apple-darwin/dist/floorp/${{ env.APP_NAME }}.app" --rcodesign-p12-file floorpCert.p12 --rcodesign-p12-password-file floorpCertPassword.passwd
-
         - name: Create DMG 📦
           run: |
             ./mach python -m mozbuild.action.make_dmg ./obj-x86_64-apple-darwin/dist/floorp floorp-macOS-universal-moz-artifact-release.dmg
-            unzip "./.github/workflows/build/dmg-floorp-base.zip"
-            hdiutil attach ./floorp-macOS-universal-moz-artifact-release.dmg
-            hdiutil attach ./base.dmg
-
-            cp -r "/Volumes/Floorp/${{ env.APP_NAME }}.app" /Volumes/Floorp\ Installer/
-            hdiutil detach /Volumes/Floorp\ Installer/
-            hdiutil convert ./base.dmg -format UDZO -imagekey zlib-level=9 -o floorp-macOS-universal-moz-artifact-dev.dmg
-
-        - name: import APPLE DEVELOPER ID CERTIFICATE for .dmg 🔑
-          uses: apple-actions/import-codesign-certs@v3
-          with:
-            p12-file-base64: ${{ secrets.APPLE_DEVELOPER_P12_BASE64 }}
-            p12-password: ${{ secrets.APPLE_DEVELOPER_P12_PASSWORD }}
-
-        - name: Sign to .dmg 🖋️
-          run: |
-            codesign -s "${{ secrets.APPLE_DEVELOPER_ID }}" floorp-macOS-universal-moz-artifact-dev.dmg
-
-            xcrun notarytool submit "floorp-macOS-universal-moz-artifact-dev.dmg" \
-                --apple-id "${{ secrets.APPLE_DEVELOPER_ACCOUNT_EMAIL }}" \
-                --team-id "${{ secrets.APPLE_DEVELOPER_TEAM_ID }}" \
-                --password "${{ secrets.APPLE_DEVELOPER_ACCOUNT_APP_SPESIFIC_PASSWORD }}" \
-                --wait
-
-            mkdir -p ./output
-            mv ./floorp-macOS-universal-moz-artifact-dev.dmg ./output/floorp-macOS-universal-moz-artifact-dev.dmg
-
-        - name: Remove needless artifacts 🗑️
-          uses: geekyeggo/delete-artifact@v5
-          with:
-            name: |
-              floorp-mac-aarch64-package
-              floorp-mac-x86_64-package
+            cp ./floorp-macOS-universal-moz-artifact-release.dmg ~/output/floorp-macOS-universal-moz-artifact-dev.dmg
+            mv ./obj-x86_64-apple-darwin/dist/floorp*update_framework_artifacts.zip ./floorp-macOS.update_framework_artifacts.zip
 
         - name: Publish Package Mozilla Artifact for dev 🎁
           uses: actions/upload-artifact@v4
@@ -185,3 +144,10 @@ jobs:
             if-no-files-found: ignore
             path: |
               ./floorp-macOS-universal-moz-artifact-release.dmg
+              ./floorp-macOS.update_framework_artifacts.zip
+
+        - name: Publish dist/host for MAR
+          uses: actions/upload-artifact@v4
+          with:
+            name: dist-host
+            path: obj-x86_64-apple-darwin/dist/host/

@@ -196,4 +196,10 @@ jobs:
       with:
         name: floorp-win-amd64-profile-generate-mode-package
         path: obj-x86_64-pc-windows-msvc/dist/
+
+    - name: Publish dist/host for MAR
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-host
+        path: obj-x86_64-pc-windows-msvc/dist/host/
     # Publish END

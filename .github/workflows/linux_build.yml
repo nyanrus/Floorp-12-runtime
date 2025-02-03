@@ -116,7 +116,10 @@ jobs:
       run: |
         cd obj-x86_64-pc-linux-gnu/dist/
         mkdir ~/output
-        tar -xvf floorp-*.tar.xz -C ~/output
+        tar -xvf floorp-*.tar.xz -C ~/output/
+        cd ../../
+
+        mv obj-x86_64-pc-linux-gnu/dist/floorp-*.tar.xz ./floorp-linux-amd64-moz-artifact-release.tar.xz
 
     - name: Publish Package Mozilla Artifact for dev 🎁
       uses: actions/upload-artifact@v4
@@ -128,5 +131,11 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: floorp-linux-amd64-moz-artifact-release
-        path: obj-x86_64-pc-linux-gnu/dist/floorp-*.tar.bz2
+        path: ./floorp-linux-amd64-moz-artifact-release.tar.xz
+
+    - name: Publish dist/host for MAR
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-host
+        path: obj-x86_64-pc-linux-gnu/dist/host/
     # Publish END

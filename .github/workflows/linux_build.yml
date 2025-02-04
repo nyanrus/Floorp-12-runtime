@@ -121,6 +121,9 @@ jobs:
 
         mv obj-x86_64-pc-linux-gnu/dist/floorp-*.tar.xz ./floorp-linux-amd64-moz-artifact-release.tar.xz
 
+        # Create nora-build-id.txt
+        cp ./obj-x86_64-pc-linux-gnu/dist/bin/application.ini ./nora-application.ini
+
     - name: Publish Package Mozilla Artifact for dev 🎁
       uses: actions/upload-artifact@v4
       with:
@@ -138,4 +141,10 @@ jobs:
       with:
         name: dist-host
         path: obj-x86_64-pc-linux-gnu/dist/host/
+
+    - name: Publish nora-application.ini for MAR
+      uses: actions/upload-artifact@v4
+      with:
+        name: application-ini
+        path: ./nora-application.ini
     # Publish END

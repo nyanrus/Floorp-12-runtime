@@ -126,8 +126,19 @@ jobs:
         - name: Create DMG 📦
           run: |
             ./mach python -m mozbuild.action.make_dmg ./obj-x86_64-apple-darwin/dist/floorp floorp-macOS-universal-moz-artifact-release.dmg
+            mkdir -p ~/output
             cp ./floorp-macOS-universal-moz-artifact-release.dmg ~/output/floorp-macOS-universal-moz-artifact-dev.dmg
-            mv ./obj-x86_64-apple-darwin/dist/floorp*update_framework_artifacts.zip ./floorp-macOS.update_framework_artifacts.zip
+
+            cp ./obj-x86_64-apple-darwin/dist/floorp*update_framework_artifacts.zip ./floorp-macOS.update_framework_artifacts.zip
+            cp ./obj-x86_64-apple-darwin/dist/floorp/Floorp.app/Contents/Resources/application.ini ./nora-application.ini
+
+        # Publish Start
+        - name: Remove old uploaded artifacts
+          uses: geekyeggo/delete-artifact@v5.1.0
+          with:
+            name: |
+              floorp-mac-x86_64-package
+              floorp-mac-aarch64-package
 
         - name: Publish Package Mozilla Artifact for dev 🎁
           uses: actions/upload-artifact@v4
@@ -135,7 +146,7 @@ jobs:
             name: floorp-mac-universal-moz-artifact-dev
             if-no-files-found: ignore
             path: |
-              ./output/
+              ~/output/
 
         - name: Publish Package Mozilla Artifact for release 🎁
           uses: actions/upload-artifact@v4
@@ -151,3 +162,10 @@ jobs:
           with:
             name: dist-host
             path: obj-x86_64-apple-darwin/dist/host/
+
+        - name: Publish nora-application.ini for MAR
+          uses: actions/upload-artifact@v4
+          with:
+            name: application-ini
+            path: ./nora-application.ini
+        # Publish End

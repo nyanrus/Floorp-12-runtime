@@ -174,10 +174,9 @@ jobs:
       uses: geekyeggo/delete-artifact@v5
       with:
         name: |
-          floorp-win-amd64-dev
           floorp-win-amd64-moz-artifact
-          floorp-win-amd64-profile-generate-mode
-          floorp-dist-host
+          dist-host
+          application-ini
 
     - name: extract moz-artifact
       run: |

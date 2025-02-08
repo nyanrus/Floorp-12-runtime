@@ -1,0 +1,121 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+on:
+    workflow_call:
+        inputs:
+            platform:
+                description: 'Target platform (windows/linux/mac)'
+                type: string
+                default: windows
+        outputs:
+            test_status:
+                description: 'Test execution status (success/failure)'
+                value: ${{ jobs.main.outputs.status }}
+
+jobs:
+  main:
+    runs-on: ${{ inputs.platform }}-latest
+    outputs:
+      status: ${{ steps.test-status.outputs.status }}
+    steps:
+        - uses: pnpm/action-setup@v4
+          with:
+            version: 9
+            run_install: false
+
+        - uses: actions/checkout@v4
+          with:
+            repository: "Floorp-Projects/Floorp-12"
+            ref: "main"
+
+        - name: Download artifact (Windows)
+          if: inputs.platform == 'windows'
+          uses: actions/download-artifact@v4
+          with:
+            name: floorp-win-amd64-moz-artifact
+            path: C:\artifact
+
+        - name: Download artifact (Linux)
+          if: inputs.platform == 'linux'
+          uses: actions/download-artifact@v4
+          with:
+            name: floorp-linux-amd64-moz-artifact-dev
+            path: /tmp/artifact
+
+        - name: Download artifact (Mac)
+          if: inputs.platform == 'mac'
+          uses: actions/download-artifact@v4
+          with:
+            name: floorp-mac-universal-moz-artifact-dev
+            path: /tmp/artifact
+
+        - name: Compress artifact (Windows)
+          if: inputs.platform == 'windows'
+          shell: pwsh
+          run: |
+            Compress-Archive -Path C:\artifact\* -DestinationPath C:\noraneko\floorp-win-amd64-moz-artifact.zip
+
+        - name: Compress artifact (Linux)
+          if: inputs.platform == 'linux'
+          shell: bash
+          run: |
+            cd /tmp/artifact
+            zip -r "/tmp/floorp-linux-amd64-moz-artifact-dev.zip" ./*
+            mv /tmp/floorp-linux-amd64-moz-artifact-dev.zip $GITHUB_WORKSPACE/
+
+        - name: Compress artifact (Mac)
+          if: inputs.platform == 'mac'
+          shell: bash
+          run: |
+            cd /tmp/artifact
+            zip -r "/tmp/floorp-mac-universal-moz-artifact-dev.zip" ./*
+            mv /tmp/floorp-mac-universal-moz-artifact-dev.zip $GITHUB_WORKSPACE/
+
+        - name: Running Test (Windows)
+          if: inputs.platform == 'windows'
+          id: test-windows
+          continue-on-error: true
+          shell: pwsh
+          run: |
+            pnpm i
+            Start-Process -NoNewWindow pnpm -ArgumentList "dev"
+            Start-Sleep -Seconds 10
+            try {
+                $response = Invoke-WebRequest -Uri http://localhost:5181 -UseBasicParsing
+                if ($response.StatusCode -eq 200) {
+                    echo "Test passed"
+                    echo "status=success" >> $env:GITHUB_ENV
+                } else {
+                    echo "Test failed"
+                    echo "status=failure" >> $env:GITHUB_ENV
+                }
+            } catch {
+                echo "Test failed with error"
+                echo "status=failure" >> $env:GITHUB_ENV
+            }
+            Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force
+
+        - name: Running Test (Unix)
+          if: inputs.platform != 'windows'
+          id: test-unix
+          continue-on-error: true
+          shell: bash
+          run: |
+            pnpm i
+            pnpm dev &
+            sleep 10
+            if curl -s -f http://localhost:5181 > /dev/null; then
+                echo "Test passed"
+                echo "status=success" >> $GITHUB_ENV
+            else
+                echo "Test failed"
+                echo "status=failure" >> $GITHUB_ENV
+            fi
+            pkill -f "node"
+
+        - name: Set test status
+          id: test-status
+          run: |
+            echo "status=${{ steps.test-windows.outputs.status || steps.test-unix.outputs.status }}" >> $GITHUB_OUTPUT

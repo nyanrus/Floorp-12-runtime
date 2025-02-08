@@ -1,0 +1,91 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+name: "(A) 📅 Daily Build with Pull Upstream"
+
+on:
+  schedule:
+    - cron: '0 6 */3 * *'
+  workflow_dispatch:
+
+run-name: "Daily Build with Pull Upstream"
+jobs:
+  part-1:
+    name: Pull Upstream from Mozilla-Central
+    uses: ./.github/workflows/pull-upstream.yml
+    secrets: inherit
+
+  windows-amd64:
+    name: Windows amd x64 build
+    needs: part-1
+    uses: ./.github/workflows/wrapper_windows_build.yml
+    secrets: inherit
+    with:
+      debug: false
+      pgo: true
+
+  linux-amd64:
+    name: Linux amd x64 build
+    needs: part-1
+    uses: ./.github/workflows/wrapper_linux_build.yml
+    secrets: inherit
+    with:
+      debug: false
+      pgo: true
+
+  mac-amd64:
+    name: Mac amd x64 build
+    needs: part-1
+    uses: ./.github/workflows/wrapper_mac_build.yml
+    secrets: inherit
+    with:
+      debug: false
+      pgo: true
+
+  platform-tests:
+    name: Platform Tests
+    needs: [windows-amd64, linux-amd64, mac-amd64]
+    strategy:
+      matrix:
+        include:
+          - platform: windows
+          - platform: linux
+          - platform: mac
+      fail-fast: false
+    uses: ./.github/workflows/patch-test.yml
+    with:
+      platform: ${{ matrix.platform }}
+
+  test-results:
+    name: Collect Test Results
+    if: always()
+    needs: platform-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check test results
+        run: |
+          RED='\033[0;31m'
+          GREEN='\033[0;32m'
+          NC='\033[0m'
+
+          echo "=== Test Results Summary ==="
+          echo "------------------------"
+
+          for job in ${{ toJSON(needs.platform-tests.outputs) }}; do
+            if [[ "$job" == *"success"* ]]; then
+              echo -e "${GREEN}✓${NC} Job succeeded"
+            elif [[ "$job" == *"failure"* ]]; then
+              echo -e "${RED}✗${NC} Job failed"
+              echo "::warning::Platform test failed"
+            else
+              echo "? Job status unknown"
+            fi
+          done
+
+          echo "------------------------"
+          status="${{ needs.platform-tests.outputs.test_status }}"
+          echo -e "Overall status: ${status}"
+          if [[ "$status" == "failure" ]]; then
+            echo "::warning::One or more platform tests failed"
+          fi

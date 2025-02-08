@@ -5,6 +5,7 @@
 name: Pull Upstream
 on:
   workflow_dispatch:
+  workflow_call:
 permissions:
   contents: write
 jobs:

@@ -160,12 +160,14 @@ jobs:
         - name: Publish dist/host for MAR
           uses: actions/upload-artifact@v4
           with:
-            name: dist-host
+            name: macOS-universal-dist-host
             path: obj-x86_64-apple-darwin/dist/host/
+            overwrite: true
 
         - name: Publish nora-application.ini for MAR
           uses: actions/upload-artifact@v4
           with:
-            name: application-ini
+            name: macOS-universal-application-ini
             path: ./nora-application.ini
+            overwrite: true
         # Publish End

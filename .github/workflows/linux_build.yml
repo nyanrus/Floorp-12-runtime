@@ -144,12 +144,14 @@ jobs:
     - name: Publish dist/host for MAR
       uses: actions/upload-artifact@v4
       with:
-        name: dist-host
+        name: linux-amd64-dist-host
         path: obj-x86_64-pc-linux-gnu/dist/host/
+        overwrite: true
 
     - name: Publish nora-application.ini for MAR
       uses: actions/upload-artifact@v4
       with:
-        name: application-ini
+        name: linux-amd64-application-ini
         path: ./nora-application.ini
+        overwrite: true
     # Publish END

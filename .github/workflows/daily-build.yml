@@ -23,7 +23,7 @@ jobs:
     secrets: inherit
     with:
       debug: false
-      pgo: true
+      pgo: false
 
   linux-amd64:
     name: Linux amd x64 build
@@ -32,7 +32,7 @@ jobs:
     secrets: inherit
     with:
       debug: false
-      pgo: true
+      pgo: false
 
   mac-amd64:
     name: Mac amd x64 build
@@ -41,7 +41,7 @@ jobs:
     secrets: inherit
     with:
       debug: false
-      pgo: true
+      pgo: false
 
   platform-tests:
     name: Platform Tests

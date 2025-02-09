@@ -55,7 +55,7 @@ jobs:
           if: inputs.platform == 'windows'
           shell: pwsh
           run: |
-            Compress-Archive -Path C:\artifact\* -DestinationPath C:\noraneko\floorp-win-amd64-moz-artifact.zip
+            Compress-Archive -Path C:\artifact\* -DestinationPath .\floorp-win-amd64-moz-artifact-dev.zip
 
         - name: Compress artifact (Linux)
           if: inputs.platform == 'ubuntu'

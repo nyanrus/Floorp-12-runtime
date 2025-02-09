@@ -50,8 +50,8 @@ jobs:
       matrix:
         include:
           - platform: windows
-          - platform: linux
-          - platform: mac
+          - platform: ubuntu
+          - platform: macos
       fail-fast: false
     uses: ./.github/workflows/patch-test.yml
     with:

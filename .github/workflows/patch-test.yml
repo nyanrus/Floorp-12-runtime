@@ -6,7 +6,7 @@ on:
     workflow_call:
         inputs:
             platform:
-                description: 'Target platform (windows/linux/mac)'
+                description: 'Target platform (windows/ubuntu/macos)'
                 type: string
                 default: windows
         outputs:
@@ -38,14 +38,14 @@ jobs:
             path: C:\artifact
 
         - name: Download artifact (Linux)
-          if: inputs.platform == 'linux'
+          if: inputs.platform == 'ubuntu'
           uses: actions/download-artifact@v4
           with:
             name: floorp-linux-amd64-moz-artifact-dev
             path: /tmp/artifact
 
         - name: Download artifact (Mac)
-          if: inputs.platform == 'mac'
+          if: inputs.platform == 'macos'
           uses: actions/download-artifact@v4
           with:
             name: floorp-mac-universal-moz-artifact-dev
@@ -58,7 +58,7 @@ jobs:
             Compress-Archive -Path C:\artifact\* -DestinationPath C:\noraneko\floorp-win-amd64-moz-artifact.zip
 
         - name: Compress artifact (Linux)
-          if: inputs.platform == 'linux'
+          if: inputs.platform == 'ubuntu'
           shell: bash
           run: |
             cd /tmp/artifact
@@ -66,7 +66,7 @@ jobs:
             mv /tmp/floorp-linux-amd64-moz-artifact-dev.zip $GITHUB_WORKSPACE/
 
         - name: Compress artifact (Mac)
-          if: inputs.platform == 'mac'
+          if: inputs.platform == 'macos'
           shell: bash
           run: |
             cd /tmp/artifact

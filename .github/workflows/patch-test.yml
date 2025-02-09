@@ -73,6 +73,27 @@ jobs:
             zip -r "/tmp/floorp-mac-universal-moz-artifact-dev.zip" ./*
             mv /tmp/floorp-mac-universal-moz-artifact-dev.zip $GITHUB_WORKSPACE/
 
+        - name: upload artifact (Windows)
+          if: inputs.platform == 'windows'
+          uses: actions/upload-artifact@v4
+          with:
+            name: floorp-win-amd64-moz-artifact-dev-patch-test
+            path: floorp-win-amd64-moz-artifact-dev.zip
+
+        - name: upload artifact (Linux)
+          if: inputs.platform == 'ubuntu'
+          uses: actions/upload-artifact@v4
+          with:
+            name: floorp-linux-amd64-moz-artifact-dev-patch-test
+            path: floorp-linux-amd64-moz-artifact-dev.zip
+
+        - name: upload artifact (Mac)
+          if: inputs.platform == 'macos'
+          uses: actions/upload-artifact@v4
+          with:
+            name: floorp-mac-universal-moz-artifact-patch-test
+            path: floorp-mac-universal-moz-artifact-dev.zip
+
         - name: Running Test (Windows)
           if: inputs.platform == 'windows'
           id: test-windows

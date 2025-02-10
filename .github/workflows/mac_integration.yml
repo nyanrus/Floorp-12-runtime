@@ -125,9 +125,7 @@ jobs:
 
         - name: Create DMG 📦
           run: |
-            ./mach python -m mozbuild.action.make_dmg ./obj-x86_64-apple-darwin/dist/floorp floorp-macOS-universal-moz-artifact-release.dmg
-            mkdir -p ~/output
-            cp ./floorp-macOS-universal-moz-artifact-release.dmg ~/output/floorp-macOS-universal-moz-artifact-dev.dmg
+            ./mach python -m mozbuild.action.make_dmg ./obj-x86_64-apple-darwin/dist/floorp floorp-macOS-universal-moz-artifact.dmg
 
             cp ./obj-x86_64-apple-darwin/dist/floorp*update_framework_artifacts.zip ./floorp-macOS.update_framework_artifacts.zip
             cp ./obj-x86_64-apple-darwin/dist/floorp/Floorp.app/Contents/Resources/application.ini ./nora-application.ini
@@ -146,7 +144,7 @@ jobs:
             name: floorp-mac-universal-moz-artifact-dev
             if-no-files-found: ignore
             path: |
-              ~/output/
+              ./floorp-macOS-universal-moz-artifact.dmg
 
         - name: Publish Package Mozilla Artifact for release 🎁
           uses: actions/upload-artifact@v4
@@ -154,7 +152,7 @@ jobs:
             name: floorp-mac-universal-moz-artifact-release
             if-no-files-found: ignore
             path: |
-              ./floorp-macOS-universal-moz-artifact-release.dmg
+              ./floorp-macOS-universal-moz-artifact.dmg
               ./floorp-macOS.update_framework_artifacts.zip
 
         - name: Publish dist/host for MAR

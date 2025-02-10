@@ -41,7 +41,7 @@ jobs:
           if: inputs.platform == 'ubuntu'
           uses: actions/download-artifact@v4
           with:
-            name: floorp-linux-amd64-moz-artifact-dev
+            name: floorp-linux-amd64-moz-artifact
             path: /tmp/artifact
 
         - name: Download artifact (Mac)
@@ -62,16 +62,14 @@ jobs:
           shell: bash
           run: |
             cd /tmp/artifact
-            zip -r "/tmp/floorp-linux-amd64-moz-artifact-dev.zip" ./*
-            mv /tmp/floorp-linux-amd64-moz-artifact-dev.zip $GITHUB_WORKSPACE/
+            mv floorp-linux-amd64-moz-artifact.tar.xz $GITHUB_WORKSPACE/
 
         - name: Compress artifact (Mac)
           if: inputs.platform == 'macos'
           shell: bash
           run: |
             cd /tmp/artifact
-            zip -r "/tmp/floorp-mac-universal-moz-artifact-dev.zip" ./*
-            mv /tmp/floorp-mac-universal-moz-artifact-dev.zip $GITHUB_WORKSPACE/
+            mv floorp-macOS-universal-moz-artifact.dmg $GITHUB_WORKSPACE/
 
         - name: upload artifact (Windows)
           if: inputs.platform == 'windows'

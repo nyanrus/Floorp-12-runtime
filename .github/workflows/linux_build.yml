@@ -119,27 +119,15 @@ jobs:
     # Publish START
     - name: Extract Package 📦
       run: |
-        cd obj-x86_64-pc-linux-gnu/dist/
-        mkdir ~/output
-        tar -xvf floorp-*.tar.xz -C ~/output/
-        cd ../../
-
-        mv obj-x86_64-pc-linux-gnu/dist/floorp-*.tar.xz ./floorp-linux-amd64-moz-artifact-release.tar.xz
-
+        mv obj-x86_64-pc-linux-gnu/dist/floorp-*.tar.xz ./floorp-linux-amd64-moz-artifact.tar.xz
         # Create nora-build-id.txt
         cp ./obj-x86_64-pc-linux-gnu/dist/bin/application.ini ./nora-application.ini
 
-    - name: Publish Package Mozilla Artifact for dev 🎁
+    - name: Publish Package Mozilla Artifact 🎁
       uses: actions/upload-artifact@v4
       with:
-        name: floorp-linux-amd64-moz-artifact-dev
-        path: ~/output/
-
-    - name: Publish Package Mozilla Artifact for release 🎁
-      uses: actions/upload-artifact@v4
-      with:
-        name: floorp-linux-amd64-moz-artifact-release
-        path: ./floorp-linux-amd64-moz-artifact-release.tar.xz
+        name: floorp-linux-amd64-moz-artifact
+        path: ./floorp-linux-amd64-moz-artifact.tar.xz
 
     - name: Publish dist/host for MAR
       uses: actions/upload-artifact@v4

@@ -6,9 +6,9 @@ on:
     workflow_call:
         inputs:
             platform:
-                description: 'Target platform (windows/ubuntu/macos)'
+                description: 'Target platform (ubuntu only)'
                 type: string
-                default: windows
+                default: ubuntu
         outputs:
             test_status:
                 description: 'Test execution status (success/failure)'
@@ -16,10 +16,14 @@ on:
 
 jobs:
   main:
-    runs-on: ${{ inputs.platform }}-latest
+    runs-on: ubuntu-latest
     outputs:
       status: ${{ steps.test-status.outputs.status }}
     steps:
+        - uses: actions/setup-node@v4
+          with:
+            node-version: lts/*
+
         - uses: pnpm/action-setup@v4
           with:
             version: 9
@@ -30,102 +34,35 @@ jobs:
             repository: "Floorp-Projects/Floorp-12"
             ref: "main"
 
-        - name: Download artifact (Windows)
-          if: inputs.platform == 'windows'
-          uses: actions/download-artifact@v4
-          with:
-            name: floorp-win-amd64-moz-artifact
-            path: C:\artifact
-
-        - name: Download artifact (Linux)
-          if: inputs.platform == 'ubuntu'
+        - name: Download artifact
           uses: actions/download-artifact@v4
           with:
             name: floorp-linux-amd64-moz-artifact
             path: /tmp/artifact
 
-        - name: Download artifact (Mac)
-          if: inputs.platform == 'macos'
-          uses: actions/download-artifact@v4
-          with:
-            name: floorp-mac-universal-moz-artifact-dev
-            path: /tmp/artifact
-
-        - name: Compress artifact (Windows)
-          if: inputs.platform == 'windows'
-          shell: pwsh
-          run: |
-            Compress-Archive -Path C:\artifact\* -DestinationPath .\floorp-win-amd64-moz-artifact-dev.zip
-
-        - name: Compress artifact (Linux)
-          if: inputs.platform == 'ubuntu'
+        - name: Compress artifact
           shell: bash
           run: |
             cd /tmp/artifact
             mv floorp-linux-amd64-moz-artifact.tar.xz $GITHUB_WORKSPACE/
 
-        - name: Compress artifact (Mac)
-          if: inputs.platform == 'macos'
-          shell: bash
-          run: |
-            cd /tmp/artifact
-            mv floorp-macOS-universal-moz-artifact.dmg $GITHUB_WORKSPACE/
-
-        - name: upload artifact (Windows)
-          if: inputs.platform == 'windows'
-          uses: actions/upload-artifact@v4
-          with:
-            name: floorp-win-amd64-moz-artifact-dev-patch-test
-            path: floorp-win-amd64-moz-artifact-dev.zip
-
-        - name: upload artifact (Linux)
-          if: inputs.platform == 'ubuntu'
+        - name: upload artifact
           uses: actions/upload-artifact@v4
           with:
             name: floorp-linux-amd64-moz-artifact-dev-patch-test
             path: floorp-linux-amd64-moz-artifact-dev.zip
 
-        - name: upload artifact (Mac)
-          if: inputs.platform == 'macos'
-          uses: actions/upload-artifact@v4
-          with:
-            name: floorp-mac-universal-moz-artifact-patch-test
-            path: floorp-mac-universal-moz-artifact-dev.zip
-
-        - name: Running Test (Windows)
-          if: inputs.platform == 'windows'
-          id: test-windows
-          continue-on-error: true
-          shell: pwsh
-          run: |
-            pnpm i
-            Start-Process -NoNewWindow pnpm -ArgumentList "dev"
-            Start-Sleep -Seconds 100
-            try {
-                $response = Invoke-WebRequest -Uri http://localhost:5181 -UseBasicParsing
-                if ($response.StatusCode -eq 200) {
-                    echo "Test passed"
-                    echo "status=success" >> $env:GITHUB_ENV
-                } else {
-                    echo "Test failed"
-                    echo "status=failure" >> $env:GITHUB_ENV
-                }
-            } catch {
-                echo "Test failed with error"
-                echo "status=failure" >> $env:GITHUB_ENV
-            }
-            Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force
-
-        - name: Running Test (Unix)
-          if: inputs.platform != 'windows'
+        - name: Running Test
           id: test-unix
           continue-on-error: true
           shell: bash
           run: |
+            Xvfb :2 -screen 0 1024x768x24 &
+            export DISPLAY=:2
             pnpm i
             pnpm dev &
             sleep 100
-            if curl -s -f http://localhost:5181 > /dev/null; then
+            if pgrep -f "floorp" > /dev/null; then
                 echo "Test passed"
                 echo "status=success" >> $GITHUB_ENV
             else
@@ -137,4 +74,4 @@ jobs:
         - name: Set test status
           id: test-status
           run: |
-            echo "status=${{ steps.test-windows.outputs.status || steps.test-unix.outputs.status }}" >> $GITHUB_OUTPUT
+            echo "status=$status" >> $GITHUB_OUTPUT

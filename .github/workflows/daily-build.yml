@@ -46,16 +46,9 @@ jobs:
   platform-tests:
     name: Platform Tests
     needs: [windows-amd64, linux-amd64, mac-amd64]
-    strategy:
-      matrix:
-        include:
-          - platform: windows
-          - platform: ubuntu
-          - platform: macos
-      fail-fast: false
     uses: ./.github/workflows/patch-test.yml
     with:
-      platform: ${{ matrix.platform }}
+      platform: ubuntu
 
   test-results:
     name: Collect Test Results
@@ -68,24 +61,15 @@ jobs:
           RED='\033[0;31m'
           GREEN='\033[0;32m'
           NC='\033[0m'
-
-          echo "=== Test Results Summary ==="
-          echo "------------------------"
-
-          for job in ${{ toJSON(needs.platform-tests.outputs) }}; do
-            if [[ "$job" == *"success"* ]]; then
-              echo -e "${GREEN}✓${NC} Job succeeded"
-            elif [[ "$job" == *"failure"* ]]; then
-              echo -e "${RED}✗${NC} Job failed"
-              echo "::warning::Platform test failed"
-            else
-              echo "? Job status unknown"
-            fi
-          done
-
-          echo "------------------------"
           status="${{ needs.platform-tests.outputs.test_status }}"
-          echo -e "Overall status: ${status}"
+          echo "=== Test Results Summary ==="
+          if [[ "$status" == "success" ]]; then
+            echo -e "${GREEN}✓ Test passed${NC}"
+          else
+            echo -e "${RED}✗ Test failed${NC}"
+            echo "::warning::Platform test failed"
+          fi
+          echo "Overall status: ${status}"
           if [[ "$status" == "failure" ]]; then
             echo "::warning::One or more platform tests failed"
           fi

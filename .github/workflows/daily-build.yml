@@ -119,6 +119,7 @@ jobs:
         with:
           name: win-amd64-application-ini
           path: ./artifact/win/ini
+
       - name: Zip Windows Application INI
         run: |
           cd ./artifact/win/ini
@@ -201,8 +202,8 @@ jobs:
           body: "Build with Patch Test status: ${{ needs.platform-tests.outputs.test_status }}."
           files: |
             ./artifact/win/floorp-win-amd64-moz-artifact.zip
-            ./artifact/win/../../win-dist-host.zip
-            ./artifact/win/../../win-application-ini.zip
+            ./artifact/win/win-dist-host.zip
+            ./artifact/win/win-application-ini.zip
             ./artifact/linux/floorp-linux-amd64-moz-artifact.tar.xz
             ./artifact/linux/linux-dist-host.zip
             ./artifact/linux/linux-application-ini.zip

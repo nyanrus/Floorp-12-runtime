@@ -83,45 +83,132 @@ jobs:
         id: set_tag
         shell: bash
         run: |
+          timestamp=$(date +%Y%m%d%H%M%S)
           if [ "${{ needs.platform-tests.outputs.test_status }}" = "success" ]; then
-            tag="dev-passed-latest"
+            tag="dev-passed-${timestamp}"
           else
-            tag="dev-failed-$(date +%Y%m%d%H%M%S)"
+            tag="dev-failed-${timestamp}"
           fi
           echo "tag=${tag}" >> $GITHUB_OUTPUT
 
-      - name: Download Windows Artifact
+      # ───────── Windows Artifacts ─────────
+      - name: Download Windows Main Artifact
         uses: actions/download-artifact@v4
         with:
           name: floorp-win-amd64-moz-artifact
-          path: ./artifact/win
+          path: ./artifact/win/main
 
-      - name: Zip Windows Artifact
+      - name: Zip Windows Main Artifact
         run: |
-          cd ./artifact/win
-          zip -r ./floorp-win-amd64-moz-artifact.zip .
+          cd ./artifact/win/main
+          zip -r ../floorp-win-amd64-moz-artifact.zip .
 
-      - name: Download Linux Artifact
+      - name: Download Windows Dist-Host
+        uses: actions/download-artifact@v4
+        with:
+          name: win-amd64-dist-host
+          path: ./artifact/win/host
+
+      - name: Zip Windows Dist-Host
+        run: |
+          cd ./artifact/win/host
+          zip -r ../../win-dist-host.zip .
+
+      - name: Download Windows Application INI
+        uses: actions/download-artifact@v4
+        with:
+          name: win-amd64-application-ini
+          path: ./artifact/win/ini
+      - name: Zip Windows Application INI
+        run: |
+          cd ./artifact/win/ini
+          zip -r ../../win-application-ini.zip .
+
+      # ───────── Linux Artifacts ─────────
+      - name: Download Linux Main Artifact
         uses: actions/download-artifact@v4
         with:
           name: floorp-linux-amd64-moz-artifact
           path: ./artifact/linux
 
-      - name: Download Mac Artifact
+      - name: Download Linux Dist-Host
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-amd64-dist-host
+          path: ./artifact/linux/host
+
+      - name: Zip Linux Dist-Host
+        run: |
+          cd ./artifact/linux/host
+          zip -r ../linux-dist-host.zip .
+
+      - name: Download Linux Application INI
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-amd64-application-ini
+          path: ./artifact/linux/ini
+
+      - name: Zip Linux Application INI
+        run: |
+          cd ./artifact/linux/ini
+          zip -r ../linux-application-ini.zip .
+
+      # ───────── Mac Artifacts ─────────
+      - name: Download Mac Main Artifact
         uses: actions/download-artifact@v4
         with:
           name: floorp-mac-universal-moz-artifact-dev
           path: ./artifact/mac
+
+      - name: Download Mac Release Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: floorp-mac-universal-moz-artifact-release
+          path: ./artifact/mac-release
+
+      - name: Download Mac Dist-Host
+        uses: actions/download-artifact@v4
+        with:
+          name: macOS-universal-dist-host
+          path: ./artifact/mac/host
+
+      - name: Zip Mac Dist-Host
+        run: |
+          cd ./artifact/mac/host
+          zip -r ../mac-dist-host.zip .
+
+      - name: Download Mac Application INI
+        uses: actions/download-artifact@v4
+        with:
+          name: macOS-universal-application-ini
+          path: ./artifact/mac/ini
+
+      - name: Zip Mac Application INI
+        run: |
+          cd ./artifact/mac/ini
+          zip -r ../mac-application-ini.zip .
+
+      - name: Zip Mac Release Artifact
+        run: |
+          cd ./artifact/mac-release
+          zip -r ../floorp-mac-universal-moz-artifact-release.zip .
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.set_tag.outputs.tag }}
           name: "Runtime Release - ${{ steps.set_tag.outputs.tag }}"
-          body: "This is a nightly build of Runtime. The Patch Test status is ${{ needs.platform-tests.outputs.test_status }}."
+          body: "Build with Patch Test status: ${{ needs.platform-tests.outputs.test_status }}."
           files: |
             ./artifact/win/floorp-win-amd64-moz-artifact.zip
+            ./artifact/win/../../win-dist-host.zip
+            ./artifact/win/../../win-application-ini.zip
             ./artifact/linux/floorp-linux-amd64-moz-artifact.tar.xz
+            ./artifact/linux/linux-dist-host.zip
+            ./artifact/linux/linux-application-ini.zip
             ./artifact/mac/floorp-macOS-universal-moz-artifact.dmg
+            ./artifact/mac/mac-dist-host.zip
+            ./artifact/mac/mac-application-ini.zip
+            ./artifact/mac-release/floorp-mac-universal-moz-artifact-release.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

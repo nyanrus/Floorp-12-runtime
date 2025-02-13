@@ -99,7 +99,7 @@ jobs:
       - name: Zip Windows Artifact
         run: |
           cd ./artifact/win
-          zip -r ../floorp-win-amd64-moz-artifact.zip .
+          zip -r ./floorp-win-amd64-moz-artifact.zip .
 
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4

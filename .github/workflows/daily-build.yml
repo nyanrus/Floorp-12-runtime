@@ -73,3 +73,55 @@ jobs:
           if [[ "$status" == "failure" ]]; then
             echo "::warning::One or more platform tests failed"
           fi
+
+  release:
+    name: Publish Dev Release
+    needs: [test-results, platform-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine tag based on patch test status
+        id: set_tag
+        shell: bash
+        run: |
+          if [ "${{ needs.platform-tests.outputs.test_status }}" = "success" ]; then
+            tag="dev-passed-latest"
+          else
+            tag="dev-failed-$(date +%Y%m%d%H%M%S)"
+          fi
+          echo "tag=${tag}" >> $GITHUB_OUTPUT
+
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: floorp-win-amd64-moz-artifact
+          path: ./artifact/win
+
+      - name: Zip Windows Artifact
+        run: |
+          cd ./artifact/win
+          zip -r ../floorp-win-amd64-moz-artifact.zip .
+
+      - name: Download Linux Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: floorp-linux-amd64-moz-artifact
+          path: ./artifact/linux
+
+      - name: Download Mac Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: floorp-mac-universal-moz-artifact-dev
+          path: ./artifact/mac
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.set_tag.outputs.tag }}
+          name: "Runtime Release - ${{ steps.set_tag.outputs.tag }}"
+          body: "This is a nightly build of Runtime. The Patch Test status is ${{ needs.platform-tests.outputs.test_status }}."
+          files: |
+            ./artifact/win/floorp-win-amd64-moz-artifact.zip
+            ./artifact/linux/floorp-linux-amd64-moz-artifact.tar.xz
+            ./artifact/mac/floorp-macOS-universal-moz-artifact.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

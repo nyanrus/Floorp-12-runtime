@@ -192,7 +192,7 @@ jobs:
       - name: Zip Mac Release Artifact
         run: |
           cd ./artifact/mac-release
-          zip -r ../floorp-mac-universal-moz-artifact-release.zip .
+          zip -r ./floorp-mac-universal-moz-artifact-release.zip .
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2

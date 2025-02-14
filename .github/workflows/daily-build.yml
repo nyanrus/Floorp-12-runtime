@@ -112,7 +112,7 @@ jobs:
       - name: Zip Windows Dist-Host
         run: |
           cd ./artifact/win/host
-          zip -r ../../win-dist-host.zip .
+          zip -r ../Windows-x64-dist-host.zip .
 
       - name: Download Windows Application INI
         uses: actions/download-artifact@v4
@@ -123,7 +123,7 @@ jobs:
       - name: Zip Windows Application INI
         run: |
           cd ./artifact/win/ini
-          zip -r ../../win-application-ini.zip .
+          zip -r ../Windows-x64-application-ini.zip .
 
       # ───────── Linux Artifacts ─────────
       - name: Download Linux Main Artifact
@@ -141,7 +141,7 @@ jobs:
       - name: Zip Linux Dist-Host
         run: |
           cd ./artifact/linux/host
-          zip -r ../linux-dist-host.zip .
+          zip -r ../Linux-x64-dist-host.zip .
 
       - name: Download Linux Application INI
         uses: actions/download-artifact@v4
@@ -152,7 +152,7 @@ jobs:
       - name: Zip Linux Application INI
         run: |
           cd ./artifact/linux/ini
-          zip -r ../linux-application-ini.zip .
+          zip -r ../Linux-x64-application-ini.zip .
 
       # ───────── Mac Artifacts ─────────
       - name: Download Mac Main Artifact
@@ -176,7 +176,7 @@ jobs:
       - name: Zip Mac Dist-Host
         run: |
           cd ./artifact/mac/host
-          zip -r ../mac-dist-host.zip .
+          zip -r ../macOS-x64-dist-host.zip .
 
       - name: Download Mac Application INI
         uses: actions/download-artifact@v4
@@ -187,7 +187,7 @@ jobs:
       - name: Zip Mac Application INI
         run: |
           cd ./artifact/mac/ini
-          zip -r ../mac-application-ini.zip .
+          zip -r ../macOS-x64-application-ini.zip .
 
       - name: Zip Mac Release Artifact
         run: |
@@ -202,14 +202,14 @@ jobs:
           body: "Build with Patch Test status: ${{ needs.platform-tests.outputs.test_status }}."
           files: |
             ./artifact/win/floorp-win-amd64-moz-artifact.zip
-            ./artifact/win/win-dist-host.zip
-            ./artifact/win/win-application-ini.zip
+            ./artifact/win/Windows-x64-dist-host.zip
+            ./artifact/win/Windows-x64-application-ini.zip
             ./artifact/linux/floorp-linux-amd64-moz-artifact.tar.xz
-            ./artifact/linux/linux-dist-host.zip
-            ./artifact/linux/linux-application-ini.zip
+            ./artifact/linux/Linux-x64-dist-host.zip
+            ./artifact/linux/Linux-x64-application-ini.zip
             ./artifact/mac/floorp-macOS-universal-moz-artifact.dmg
-            ./artifact/mac/mac-dist-host.zip
-            ./artifact/mac/mac-application-ini.zip
+            ./artifact/mac/macOS-x64-dist-host.zip
+            ./artifact/mac/macOS-x64-application-ini.zip
             ./artifact/mac-release/floorp-mac-universal-moz-artifact-release.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

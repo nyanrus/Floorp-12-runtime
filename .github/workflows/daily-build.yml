@@ -85,9 +85,9 @@ jobs:
         run: |
           timestamp=$(date +%Y%m%d%H%M%S)
           if [ "${{ needs.platform-tests.outputs.test_status }}" = "success" ]; then
-            tag="dev-passed-${timestamp}"
+            tag="passed-${timestamp}"
           else
-            tag="dev-failed-${timestamp}"
+            tag="failed-${timestamp}"
           fi
           echo "tag=${tag}" >> $GITHUB_OUTPUT
 
@@ -199,7 +199,7 @@ jobs:
         with:
           tag_name: ${{ steps.set_tag.outputs.tag }}
           name: "Runtime Release - ${{ steps.set_tag.outputs.tag }}"
-          body: "This is a runtime release for Floorp 12. \n **Test Status:** ${{ needs.platform-tests.outputs.test_status }} \n **WARNING:** NOTE: This release is not an installer."
+          body: "This is a runtime release for Floorp 12. \n\n **Test Status:** ${{ needs.platform-tests.outputs.test_status }} \n\n **WARNING:** NOTE: This release is not an Floorp installer. Visit the [releases page](https://floorp.app) to download the official installer."
           files: |
             ./artifact/win/floorp-win-amd64-moz-artifact.zip
             ./artifact/win/Windows-x64-dist-host.zip

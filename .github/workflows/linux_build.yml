@@ -112,6 +112,8 @@ jobs:
 
     - name: Build 🔨
       run: |
+        Xvfb :2 -screen 0 1024x768x24 &
+        export DISPLAY=:2
         ./mach build
         ./mach package
         rm -rf ~/.cargo

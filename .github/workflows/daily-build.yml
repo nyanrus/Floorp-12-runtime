@@ -9,7 +9,7 @@ on:
     - cron: "0 6 * * *"
   workflow_dispatch:
 
-run-name: "Daily Build with Pull Upstream"
+run-name: "(B) 📅 Daily Runtime Build with Pull Upstream"
 jobs:
   part-1:
     name: Pull Upstream from Mozilla-Central
@@ -23,7 +23,7 @@ jobs:
     secrets: inherit
     with:
       debug: false
-      pgo: false
+      pgo: true
 
   linux-amd64:
     name: Linux amd x64 build
@@ -32,7 +32,7 @@ jobs:
     secrets: inherit
     with:
       debug: false
-      pgo: false
+      pgo: true
 
   mac-amd64:
     name: Mac amd x64 build
@@ -41,7 +41,7 @@ jobs:
     secrets: inherit
     with:
       debug: false
-      pgo: false
+      pgo: true
 
   platform-tests:
     name: Platform Tests
@@ -199,7 +199,7 @@ jobs:
         with:
           tag_name: ${{ steps.set_tag.outputs.tag }}
           name: "Runtime Release - ${{ steps.set_tag.outputs.tag }}"
-          body: "Build with Patch Test status: ${{ needs.platform-tests.outputs.test_status }}."
+          body: "This is a runtime release for Floorp 12. \n **Test Status:** ${{ needs.platform-tests.outputs.test_status }} \n **WARNING:** NOTE: This release is not an installer."
           files: |
             ./artifact/win/floorp-win-amd64-moz-artifact.zip
             ./artifact/win/Windows-x64-dist-host.zip

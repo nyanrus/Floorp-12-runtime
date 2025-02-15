@@ -50,33 +50,9 @@ jobs:
     with:
       platform: ubuntu
 
-  test-results:
-    name: Collect Test Results
-    if: always()
-    needs: platform-tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check test results
-        run: |
-          RED='\033[0;31m'
-          GREEN='\033[0;32m'
-          NC='\033[0m'
-          status="${{ needs.platform-tests.outputs.test_status }}"
-          echo "=== Test Results Summary ==="
-          if [[ "$status" == "success" ]]; then
-            echo -e "${GREEN}✓ Test passed${NC}"
-          else
-            echo -e "${RED}✗ Test failed${NC}"
-            echo "::warning::Platform test failed"
-          fi
-          echo "Overall status: ${status}"
-          if [[ "$status" == "failure" ]]; then
-            echo "::warning::One or more platform tests failed"
-          fi
-
   release:
     name: Publish Dev Release
-    needs: [test-results, platform-tests]
+    needs: platform-tests
     runs-on: ubuntu-latest
     steps:
       - name: Determine tag based on patch test status

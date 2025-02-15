@@ -2,9 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Please write our copyright if you use this file.
-# © 2023 Floorp Projects & Contributors
-
 #! SELF HOST DOES NOT SUPPORTED
 #TODO: separate Publish to other workflow
 
@@ -23,35 +20,11 @@ on:
       MOZ_BUILD_DATE:
         type: string
         default: ""
-    secrets:
-        APPLE_DEVELOPER_P12_BASE64:
-            description: "macOS CERTIFICATES P12 For App BASE64"
-            required: true
-        APPLE_DEVELOPER_P12_PASSWORD:
-            description: "macOS CERTIFICATES P12 PASSWORD"
-            required: true
-        APPLE_DEVELOPER_ID:
-            description: "macOS AppleDeveloperId"
-            required: true
-        APPLE_DEVELOPER_ACCOUNT_EMAIL:
-            description: "macOS AppleAccountId"
-            required: true
-        APPLE_DEVELOPER_TEAM_ID:
-            description: "macOS AppleTeamId"
-            required: true
-        APPLE_DEVELOPER_ACCOUNT_APP_SPESIFIC_PASSWORD:
-            description: "macOS AppleAccountAppSpecificPassword"
-            required: true
 
 jobs:
   Integration:
     runs-on: macos-latest
     steps:
-        - name: Delete SDK artifact
-          uses: geekyeggo/delete-artifact@v5
-          with:
-            name: macos-sdk-package
-
         - name: Clone 📥
           uses: actions/checkout@v4
           with:

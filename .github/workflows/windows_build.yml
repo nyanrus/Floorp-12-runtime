@@ -113,6 +113,9 @@ jobs:
         # Copy Floorp Branding
         cp -r ./floorp/gecko/branding/* ./browser/branding/
 
+        # Set Branding
+        echo "ac_add_options --with-branding=browser/branding/floorp-official" >> mozconfig
+
         sudo apt install msitools -y
 
         # Set Flat Chrome

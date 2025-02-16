@@ -77,6 +77,9 @@ jobs:
         cp -r ./floorp/gecko/branding/* ./browser/branding/
         sudo apt install msitools -y
 
+        # Set Branding
+        echo "ac_add_options --with-branding=browser/branding/floorp-official" >> mozconfig
+
         # Set Flat Chrome
         echo "ac_add_options --enable-chrome-format=flat" >> mozconfig
 

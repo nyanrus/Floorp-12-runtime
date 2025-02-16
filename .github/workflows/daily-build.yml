@@ -175,6 +175,8 @@ jobs:
         with:
           tag_name: ${{ steps.set_tag.outputs.tag }}
           name: "Runtime Release - ${{ steps.set_tag.outputs.tag }}"
+          make_latest: ${{ needs.platform-tests.outputs.test_status }} == "success"
+          prerelease: ${{ needs.platform-tests.outputs.test_status }} == "failure"
           body: "This is a runtime release for Floorp 12. \n\n **Test Status:** ${{ needs.platform-tests.outputs.test_status }} \n\n **WARNING:** NOTE: This release is not an Floorp installer. Visit the [releases page](https://floorp.app) to download the official installer."
           files: |
             ./artifact/win/floorp-win-amd64-moz-artifact.zip
